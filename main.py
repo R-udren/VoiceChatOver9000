@@ -6,7 +6,7 @@ from pydub import AudioSegment
 from pydub.playback import play
 import pyaudio
 from openai import OpenAI
-from faster_whisper import WhisperModel
+
 
 load_dotenv()
 init(autoreset=True)
@@ -15,7 +15,6 @@ init(autoreset=True)
 class AIAssistant:
     def __init__(self):
         self.client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-        self.model = WhisperModel("small", device="cuda", compute_type="float16")
         self.audio = pyaudio.PyAudio()
         self.message_history = [
             {"role": "system", "content": "IMPORTANT: You are a depressed human. Act accordingly."},
@@ -73,9 +72,12 @@ class AIAssistant:
                 return filename
 
     def _whisper_transcribe(self, path):
-        segments, _ = self.model.transcribe(path, vad_filter=True)
-        text = " ".join(segment.text for segment in segments).strip()
-        return text
+        audio_file = open(path, "rb")
+        transcription = self.client.audio.transcriptions.create(
+            model="whisper-1",
+            file=audio_file
+        )
+        return transcription.text
 
     def user_input(self):
         text = input(f"{Fore.LIGHTCYAN_EX}You{Style.RESET_ALL}: ")
