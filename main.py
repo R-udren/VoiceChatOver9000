@@ -13,9 +13,11 @@ init(autoreset=True)
 
 
 class AIAssistant:
-    def __init__(self):
+    def __init__(self, sample_rate=44100, channels=1):
         self.client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
         self.audio = pyaudio.PyAudio()
+        self.sample_rate = sample_rate
+        self.channels = channels
         self.message_history = [
             {"role": "system", "content": "IMPORTANT: You are a depressed human. Act accordingly."},
             {"role": "system", "content": "You are a depressed human. You are acting like a depressed human."},
@@ -50,8 +52,8 @@ class AIAssistant:
         sound = AudioSegment.from_file(path)
         play(sound)
 
-    def _listen(self, filename="records/record.wav", sample_rate=44100):
-        stream = self.audio.open(format=pyaudio.paInt16, channels=1, rate=sample_rate, input=True,
+    def _listen(self, filename="records/record.wav"):
+        stream = self.audio.open(format=pyaudio.paInt16, channels=self.channels, rate=self.sample_rate, input=True,
                                  frames_per_buffer=1024)
         print(f"{Fore.YELLOW}Listening...")
         frames = []
@@ -65,9 +67,9 @@ class AIAssistant:
             stream.stop_stream()
             stream.close()
             with wave.open(filename, "wb") as soundfile:
-                soundfile.setnchannels(1)
+                soundfile.setnchannels(self.channels)
                 soundfile.setsampwidth(self.audio.get_sample_size(pyaudio.paInt16))
-                soundfile.setframerate(sample_rate)
+                soundfile.setframerate(self.sample_rate)
                 soundfile.writeframes(b''.join(frames))
                 return filename
 
