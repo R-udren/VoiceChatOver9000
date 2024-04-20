@@ -8,6 +8,7 @@ This project is an AI Assistant built using Python. It uses OpenAI's GPT-3.5-tur
 - Python 3.9 or later
 - `winget` package manager
 - `git` version control system
+- `ffmpeg` multimedia framework
 
 ## Installation
 

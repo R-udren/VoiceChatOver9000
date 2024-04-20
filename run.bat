@@ -23,6 +23,13 @@ IF ERRORLEVEL 1 (
     exit /b
 )
 
+REM Check if ffmpeg is installed
+ffmpeg -version >nul 2>&1
+IF ERRORLEVEL 1 (
+    echo ffmpeg is not installed. Installing ffmpeg...
+    REM Install ffmpeg using winget
+    winget install -e --id FFmpeg.FFmpeg
+)
 
 REM Check if venv exists
 IF NOT EXIST "venv" (
