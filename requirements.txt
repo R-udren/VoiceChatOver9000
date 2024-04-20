@@ -1,0 +1,5 @@
+PyAudio~=0.2.14
+python-dotenv~=1.0.1
+colorama~=0.4.6
+pydub~=0.25.1
+openai~=1.23.2
