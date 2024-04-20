@@ -28,7 +28,7 @@ ffmpeg -version >nul 2>&1
 IF ERRORLEVEL 1 (
     echo ffmpeg is not installed. Installing ffmpeg...
     REM Install ffmpeg using winget
-    winget install -e --id FFmpeg.FFmpeg
+    winget install -e --id=Gyan.FFmpeg
 )
 
 REM Check if venv exists
