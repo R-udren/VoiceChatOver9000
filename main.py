@@ -82,7 +82,11 @@ class AIAssistant:
         return transcription.text
 
     def user_input(self):
-        text = input(f"{Fore.LIGHTCYAN_EX}You{Style.RESET_ALL}: ")
+        try:
+            text = input(f"{Fore.LIGHTCYAN_EX}You{Style.RESET_ALL}: ")
+        except EOFError:
+            self.shutdown()
+            return
         if not text:
             text = self._whisper_transcribe(self._listen())
             print(f"{Fore.LIGHTCYAN_EX}You{Style.RESET_ALL}: {text}")
