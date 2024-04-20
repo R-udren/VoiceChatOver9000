@@ -7,6 +7,7 @@ This project is an AI Assistant built using Python. It uses OpenAI's GPT-3.5-tur
 - Windows 10 or later
 - Python 3.9 or later
 - `winget` package manager
+- `git` version control system
 
 ## Installation
 
