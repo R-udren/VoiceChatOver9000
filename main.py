@@ -98,7 +98,7 @@ class AIAssistant:
     def assistant(self, user_text):
         answer = self._conversation(user_text)
         path = self._create_audio(answer, "nova")
-        print(f"{Fore.GREEN}Assistant{Style.RESET_ALL}: {answer}")
+        print(f"{Fore.LIGHTGREEN_EX}Assistant{Style.RESET_ALL}: {answer}")
         self._play_audio(path)
         return answer
 
