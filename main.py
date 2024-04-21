@@ -119,7 +119,7 @@ class AIAssistant:
 
 if __name__ == "__main__":
     assistant = AIAssistant()
-    print(f"{Fore.LIGHTMAGENTA_EX}Welcome!{Style.RESET_ALL}"
-          f"{Fore.LIGHTMAGENTA_EX}Empty input will trigger the microphone.{Style.RESET_ALL}"
-          f"{Fore.LIGHTMAGENTA_EX}Press CTRL+C to exit.{Style.RESET_ALL}")
+    print(f"{Fore.LIGHTYELLOW_EX}Welcome!{Style.RESET_ALL}\n"
+          f"{Fore.LIGHTGREEN_EX}Empty input will trigger the microphone.{Style.RESET_ALL}\m"
+          f"{Fore.LIGHTRED_EX}Press CTRL+C to exit.{Style.RESET_ALL}")
     assistant.main()
