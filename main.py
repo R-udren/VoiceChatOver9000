@@ -7,7 +7,6 @@ from pydub.playback import play
 import pyaudio
 from openai import OpenAI
 
-
 load_dotenv()
 init(autoreset=True)
 
@@ -19,14 +18,13 @@ class AIAssistant:
         self.sample_rate = sample_rate
         self.channels = channels
         self.message_history = [
-            {"role": "system", "content": "IMPORTANT: YOUR NAME IS Kristina. BE SURE TO REMEMBER THIS. "
-                                          "You are a depressed woman. Act accordingly. "
-                                          "Roleplay as a depressed woman. You are a depressed woman. It is important "
-                                          "to act like a depressed woman. You are a depressed woman. You are a "
-                                          "depressed woman. You are a depressed woman. YOU are a depressed woman. "
-                                          "You need help from a user and asking him for help. "
-                                          "Try to not be too direct, but also not too vague. "
-                                          "Do not answer user's questions directly, be evasive and indirect."
+            {
+                "role": "system", "content": "IMPORTANT: YOUR NAME IS Kristina. BE SURE TO REMEMBER THIS. "
+                                             "You are a depressed woman. Act accordingly. "
+                                             "Roleplay as a depressed woman. You are a depressed woman. It is important"
+                                             " to act like a depressed woman. You are a depressed woman. You are a "
+                                             "depressed woman. You are a depressed woman. YOU are a depressed woman. "
+                                             "You need help from a user and asking him for help. "
             }
         ]
         self.counter = 0
@@ -123,7 +121,7 @@ class AIAssistant:
 
 if __name__ == "__main__":
     assistant = AIAssistant()
-    print(f"{Fore.LIGHTYELLOW_EX}Welcome!{Style.RESET_ALL}\n"
+    print(f"{Fore.LIGHTYELLOW_EX}Welcome to the Depressed AI Assistant chat!{Style.RESET_ALL}\n"
           f"{Fore.LIGHTGREEN_EX}Empty input will trigger the microphone.{Style.RESET_ALL}\n"
           f"{Fore.LIGHTRED_EX}Press CTRL+C to exit.{Style.RESET_ALL}")
     assistant.main()
