@@ -59,6 +59,12 @@ IF NOT EXIST "venv" (
     echo Virtual environment exists.
 )
 
+REM Check for .env file
+IF NOT EXIST ".env" (
+    echo Obtain OpenAI API key and create a .env file with the following content:
+    echo OPENAI_API_KEY=your-api-key
+    pause
+
 REM Activate the virtual environment
 echo Activating virtual environment...
 CALL venv\Scripts\activate
