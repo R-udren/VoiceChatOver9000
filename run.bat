@@ -16,7 +16,7 @@ IF ERRORLEVEL 1 (
     IF /I "%choice%" EQU "y" (
         REM Install Python using winget
         echo Installing Python...
-        winget install -e --id=Python.Python
+        winget install -e --id=Python.Python.3.12
     ) ELSE (
         echo Python is required to run this project.
         exit /b
@@ -75,15 +75,17 @@ REM Activate the virtual environment
 echo Activating virtual environment...
 CALL venv\Scripts\activate
 
-REM Install requirements
-echo Installing requirements...
-python -m pip install -r requirements.txt
+REM Install required packages
+echo Installing required packages...
+pip install -r requirements.txt
+
 
 REM Update git
 echo Updating git...
 git pull
 
 REM Clear the screen
+pause
 cls
 
 REM Run main.py
