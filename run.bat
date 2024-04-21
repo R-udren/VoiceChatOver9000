@@ -11,7 +11,7 @@ IF ERRORLEVEL 1 (
 REM Check if Python is installed
 python --version >nul 2>&1
 IF ERRORLEVEL 1 (
-    echo Python is not installed. Install Python? (y/n)
+    echo Python is not installed. Install Python? y/n
     set /p choice=
     IF /I "%choice%" EQU "y" (
         REM Install Python using winget
@@ -20,12 +20,14 @@ IF ERRORLEVEL 1 (
     ) ELSE (
         echo Python is required to run this project.
         exit /b
+    )
 )
+
 
 REM Check Git
 git --version >nul 2>&1
 IF ERRORLEVEL 1 (
-    echo Git is not installed. Install Git? (y/n)
+    echo Git is not installed. Install Git? y/n
     set /p choice=
     IF /I "%choice%" EQU "y" (
         REM Install Git using winget
@@ -34,12 +36,13 @@ IF ERRORLEVEL 1 (
     ) ELSE (
         echo Git is required to run this project.
         exit /b
+    )
 )
 
 REM Check if ffmpeg is installed
 ffmpeg -version >nul 2>&1
 IF ERRORLEVEL 1 (
-    echo ffmpeg is not installed. Install ffmpeg? (y/n)
+    echo ffmpeg is not installed. Install ffmpeg? y/n
     set /p choice=
     IF /I "%choice%" EQU "y" (
         REM Install ffmpeg using winget
@@ -64,6 +67,9 @@ IF NOT EXIST ".env" (
     echo Obtain OpenAI API key and create a .env file with the following content:
     echo OPENAI_API_KEY=your-api-key
     pause
+) ELSE (
+    echo .env file exists...
+)
 
 REM Activate the virtual environment
 echo Activating virtual environment...
@@ -77,9 +83,11 @@ REM Update git
 echo Updating git...
 git pull
 
-REM Pause and clear the screen
-pause
+REM Clear the screen
 cls
 
 REM Run main.py
 python main.py
+
+REM Pause before closing
+pause
