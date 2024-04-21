@@ -40,6 +40,7 @@ IF NOT EXIST "venv" (
 )
 
 REM Activate the virtual environment
+echo Activating virtual environment...
 CALL venv\Scripts\activate
 
 REM Install requirements
@@ -49,6 +50,10 @@ python -m pip install -r requirements.txt
 REM Update git
 echo Updating git...
 git pull
+
+REM Pause and clear the screen
+pause
+cls
 
 REM Run main.py
 python main.py
