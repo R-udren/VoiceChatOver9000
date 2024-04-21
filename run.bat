@@ -4,31 +4,51 @@ REM This script installs Python and required packages for the project.
 REM Check if winget is installed
 winget --version >nul 2>&1
 IF ERRORLEVEL 1 (
-    echo winget is not installed. Please install it manually.
+    echo winget is not installed. Consider installing winget from the Microsoft Store.
     exit /b
 )
 
 REM Check if Python is installed
 python --version >nul 2>&1
 IF ERRORLEVEL 1 (
-    echo Python is not installed. Installing Python...
-    REM Install Python using winget
-    winget install -e --id Python.Python
+    echo Python is not installed. Install Python? (y/n)
+    set /p choice=
+    IF /I "%choice%" EQU "y" (
+        REM Install Python using winget
+        echo Installing Python...
+        winget install -e --id=Python.Python
+    ) ELSE (
+        echo Python is required to run this project.
+        exit /b
 )
 
 REM Check Git
 git --version >nul 2>&1
 IF ERRORLEVEL 1 (
-    echo Git is not installed. Please install it manually.
-    exit /b
+    echo Git is not installed. Install Git? (y/n)
+    set /p choice=
+    IF /I "%choice%" EQU "y" (
+        REM Install Git using winget
+        echo Installing Git...
+        winget install -e --id=Git.Git
+    ) ELSE (
+        echo Git is required to run this project.
+        exit /b
 )
 
 REM Check if ffmpeg is installed
 ffmpeg -version >nul 2>&1
 IF ERRORLEVEL 1 (
-    echo ffmpeg is not installed. Installing ffmpeg...
-    REM Install ffmpeg using winget
-    winget install -e --id=Gyan.FFmpeg
+    echo ffmpeg is not installed. Install ffmpeg? (y/n)
+    set /p choice=
+    IF /I "%choice%" EQU "y" (
+        REM Install ffmpeg using winget
+        echo Installing ffmpeg...
+        winget install -e --id=Gyan.FFmpeg
+    ) ELSE (
+        echo ffmpeg is required to run this project.
+        exit /b
+    )
 )
 
 REM Check if venv exists
