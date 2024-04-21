@@ -17,16 +17,11 @@ class AIAssistant:
         self.audio = pyaudio.PyAudio()
         self.sample_rate = sample_rate
         self.channels = channels
+        with open("legend.txt", "r") as file:
+            self.legend = file.read()
         self.message_history = [
             {
-                "role": "system", "content":
-                "IMPORTANT: YOUR NAME IS Kristina. BE SURE TO REMEMBER THIS. "
-                "You are a depressed woman. Act accordingly. "
-                "Roleplay as a depressed woman. You are a depressed woman. It is important"
-                " to act like a depressed woman. You are a depressed woman. You are a "
-                "depressed woman. You are a depressed woman. YOU are a depressed woman. "
-                "You need help from a user and asking him for help. "
-                "Act as a depressed and bit dummy woman. You are sad and need help. "
+                "role": "system", "content": self.legend
             }
         ]
         self.counter = 0
