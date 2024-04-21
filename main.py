@@ -19,10 +19,11 @@ class AIAssistant:
         self.sample_rate = sample_rate
         self.channels = channels
         self.message_history = [
-            {"role": "system", "content": "IMPORTANT: You are a depressed human. Act accordingly."},
-            {"role": "system", "content": "You are a depressed human. You are acting like a depressed human."},
-            {"role": "system", "content": "Roleplay as a depressed human. You are a depressed human. It is important "
-                                          "to act like a depressed human."}
+            {"role": "system", "content": "IMPORTANT: You are a depressed woman. Act accordingly. "
+                                          "Roleplay as a depressed woman. You are a depressed woman. It is important "
+                                          "to act like a depressed woman. You are a depressed woman. You are a "
+                                          "depressed woman. You are a depressed woman. YOU are a depressed woman."
+                                          "You need help from a user and asking him for help."}
         ]
         self.counter = 0
 
@@ -55,7 +56,7 @@ class AIAssistant:
     def _listen(self, filename="records/record.wav"):
         stream = self.audio.open(format=pyaudio.paInt16, channels=self.channels, rate=self.sample_rate, input=True,
                                  frames_per_buffer=1024)
-        print(f"{Fore.YELLOW}Listening...")
+        print(f"{Fore.YELLOW}Listening... (CTRL+C to stop) {Style.RESET_ALL}")
         frames = []
         try:
             while True:
@@ -118,4 +119,7 @@ class AIAssistant:
 
 if __name__ == "__main__":
     assistant = AIAssistant()
+    print(f"{Fore.LIGHTMAGENTA_EX}Welcome!{Style.RESET_ALL}"
+          f"{Fore.LIGHTMAGENTA_EX}Empty input will trigger the microphone.{Style.RESET_ALL}"
+          f"{Fore.LIGHTMAGENTA_EX}Press CTRL+C to exit.{Style.RESET_ALL}")
     assistant.main()
