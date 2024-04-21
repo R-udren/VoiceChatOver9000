@@ -30,3 +30,11 @@ This project is an AI Assistant built using Python. It uses OpenAI's GPT-3.5-tur
     ```bash
     ./run.bat
     ```
+
+4. Create shortcut to `run.bat` on your desktop (Optional).
+   
+    ```bash
+    mklink run.bat ~/Desktop/AIAssistant.bat
+    ``` 
+
+

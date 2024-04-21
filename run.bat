@@ -1,14 +1,6 @@
 @echo off
 REM This script installs Python and required packages for the project.
 
-REM Add shortcut to Desktop
-echo Create shortcut to Desktop? (y/n)
-set /p choice=
-IF /I "%choice%" EQU "y" (
-    echo Creating shortcut...
-    mklink "C:\Users\%USERNAME%\Desktop\AI-Conversation.lnk" "%~dp0%~n0.bat"
-)
-
 REM Check if winget is installed
 winget --version >nul 2>&1
 IF ERRORLEVEL 1 (
