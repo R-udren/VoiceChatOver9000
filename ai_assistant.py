@@ -2,7 +2,7 @@ import os
 from typing import Literal
 
 from rich.console import Console
-from openai import OpenAI
+from openai import OpenAI, APIConnectionError
 
 from audio_utils import AudioUtils
 from console_utils import fancy_printer
@@ -87,9 +87,12 @@ class AIAssistant:
         except (KeyboardInterrupt, EOFError):
             self.console.print("\n\n:keyboard:[red] Interrupted by user.")
         except FileNotFoundError as fe:
-            self.console.print(f":floppy_disk:[red] Error: {fe}")
+            self.console.print(f":floppy_disk:[red] FileNotFoundError:[white] {fe}")
+        except APIConnectionError as ace:
+            self.console.print(f":satellite:[red] APIConnectionError:[white] {ace}\n\n"
+                               f"[bright_red]Please check your internet connection or proxy.")
         except Exception as e:
-            self.console.print_exception(show_locals=True)
+            self.console.print_exception(show_locals=False)
         finally:
             self.shutdown()
 
