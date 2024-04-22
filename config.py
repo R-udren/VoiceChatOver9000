@@ -12,6 +12,7 @@ RECORDS_DIR = "records"
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 PROXY_ADDRESS = os.getenv("PROXY_ADDRESS")
+PROXY_URL = f"http://{PROXY_ADDRESS}"
 
 with open("legend.txt", "r") as file:
     LEGEND = file.read()
