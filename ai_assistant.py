@@ -5,7 +5,6 @@ from rich.console import Console
 from openai import OpenAI, APIConnectionError
 
 from audio_utils import AudioUtils
-from console_utils import fancy_printer
 import config
 
 
@@ -18,9 +17,10 @@ class AIAssistant:
         self.legend = config.LEGEND
 
         self.message_history = [
-            {
-                "role": "system", "content": self.legend
-            }
+            {"role": "system", "content": self.legend},
+            {"role": "system", "content": f"You are chatting with USER! the Username is: {os.getlogin()}"},
+            {"role": "user", "content": f"I am a {os.getlogin()}."},
+            {"role": "assistant", "content": "I see..."}
         ]
 
     def speech_to_text(self, audio_path):
