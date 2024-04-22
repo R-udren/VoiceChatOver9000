@@ -63,7 +63,7 @@ class AIAssistant:
 
         frames = []
         try:
-            with console.status("Listening...", spinner="point"):
+            with console.status(":microphone:Listening...", spinner="point"):
                 while True:
                     data = stream.read(1024)
                     frames.append(data)
@@ -88,23 +88,25 @@ class AIAssistant:
         return transcription.text
 
     def user_input(self):
-        text = console.input("You: ")
+        text = console.input("\nYou[white]: ")
 
         if text.lower() == "exit":
             self.shutdown()
             return
         elif not text:
-            text = self._whisper_transcribe(self._listen())
-            console.print(f"You: {text}")
+            with console.status(":microphone:[bright_yellow] Recording...", spinner="point"):
+                text = self._whisper_transcribe(self._listen())
+            console.print(f"You[white]: {text}")
             return text
         else:
             self._play_audio(self._create_audio(text, "echo"))
             return text
 
     def assistant(self, user_text):
-        answer = self._conversation(user_text)
-        path = self._create_audio(answer, "nova")
-        console.print(f"Assistant: {answer}")
+        with console.status(":robot:[green] Thinking...", spinner="point"):
+            answer = self._conversation(user_text)
+            path = self._create_audio(answer, "nova")
+        console.print(f":computer: [bold cyan]Assistant[white]: {answer}")
         self._play_audio(path)
         return answer
 
@@ -113,18 +115,19 @@ class AIAssistant:
             while True:
                 user_text = self.user_input()
                 self.assistant(user_text)
-
         except (KeyboardInterrupt, EOFError):
+            self.shutdown()
+        finally:
             self.shutdown()
 
     def shutdown(self):
         self.audio.terminate()
-        console.print("Goodbye!")
+        console.print("\n[bold yellow]Goodbye!:wave:")
 
 
 if __name__ == "__main__":
     assistant = AIAssistant()
-    console.print("Welcome to the rovert's AI Assistant chat!\n"
-                  "Empty input will trigger the microphone.\n"
-                  "Press CTRL+C to exit.")
+    console.print("[blue]:wave: Welcome to the rovert's AI Assistant chat!\n"
+                  "[yellow]:information: Empty input will trigger the microphone.\n"
+                  "[red]:exclamation: Press CTRL+C to exit.")
     assistant.main()
