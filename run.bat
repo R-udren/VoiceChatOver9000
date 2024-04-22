@@ -1,6 +1,9 @@
 @echo off
 REM This script installs Python and required packages for the project.
 
+REM Change directory to the project folder
+cd %~dp0
+
 REM Check if winget is installed
 winget --version >nul 2>&1
 IF ERRORLEVEL 1 (
@@ -38,6 +41,10 @@ IF ERRORLEVEL 1 (
         exit /b
     )
 )
+
+REM Update the repository
+echo Updating the repository from GitHub...
+git pull
 
 REM Check if ffmpeg is installed
 ffmpeg -version >nul 2>&1
@@ -80,9 +87,6 @@ echo Installing required packages...
 pip install -r requirements.txt
 
 
-REM Update git
-echo Updating git...
-git pull
 
 REM Clear the screen
 pause
