@@ -2,7 +2,7 @@ from time import sleep
 import sys
 
 
-def typewritten_text(text):
+def fancy_printer(text):
     lines = text.split("\n")
     for line in lines:
         for char in line:
@@ -19,7 +19,7 @@ def typewritten_text(text):
 
 
 if __name__ == "__main__":
-    typewritten_text(
+    fancy_printer(
         "Hello! I am a text-to-speech assistant. "
         "I can help you with your daily tasks.\n"
         "How can I help you today?"
