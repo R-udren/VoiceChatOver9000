@@ -1,15 +1,15 @@
 # AI Assistant
 
-This project is an AI Assistant built using Python. It uses OpenAI's GPT-3.5-turbo model for conversation and the Whisper ASR API for speech recognition.
+This project is an AI Assistant built using Python. It uses OpenAI's GPT-3.5-turbo model for conversation and the Whisper API for speech recognition.
 
 ## Prerequisites
 
-- Windows 10 or later
-- Python 3.9 or later
-- `winget` package manager
-- `git` version control system
+- Python 3.9 or later (script will download 3.12)
 - `ffmpeg` multimedia framework
 - API key from OpenAI
+- `winget` package manager
+- `git` version control system
+
 
 ## Installation
 
@@ -26,16 +26,10 @@ This project is an AI Assistant built using Python. It uses OpenAI's GPT-3.5-tur
     echo "OPENAI_API_KEY=YOUR_API_KEY" > .env
     ```
 
-3. Run batch script:
+3. Run batch script.
 
     ```bash
     ./run.bat
     ```
-
-4. Create shortcut to `run.bat` on your desktop (Optional).
-   
-    ```bash
-    mklink run.bat ~/Desktop/AIAssistant.bat
-    ``` 
 
 
