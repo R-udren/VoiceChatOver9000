@@ -8,7 +8,7 @@ SAMPLE_RATE = 44100
 CHANNELS = 1
 RECORDS_DIR = "records"
 
-FANCY_WRITE = False
+# FANCY_WRITE = False
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
