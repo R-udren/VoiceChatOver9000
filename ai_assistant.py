@@ -60,7 +60,7 @@ class AIAssistant:
         if not text:
             with self.console.status(":microphone:[bright_yellow] Recording... (CTRL+C to Stop)", spinner="point"):
                 audio_path = self.audio.record_mic()
-            with self.console.status(":loud_sound:[green] Transcribing...", spinner="arc"):
+            with self.console.status(":loud_sound:[bright_green] Transcribing...", spinner="arc"):
                 text = self.speech_to_text(audio_path)
             self.console.print(f"\n[bright_cyan]You[white]: {text}")
             return text
@@ -72,7 +72,7 @@ class AIAssistant:
         with self.console.status(":robot:[green] Thinking...", spinner="point"):
             answer = self.conversation(user_text)
             path = self.text_to_speech(answer, "nova")
-        self.console.print(f"[bold green]Assistant[white]: {answer}", end="")
+        self.console.print(f"[bold bright_green]Assistant[white]: {answer}", end="")
 
         self.audio.play_audio(path)
         return answer
@@ -98,5 +98,5 @@ class AIAssistant:
 
     def shutdown(self):
         del self.audio
-        self.console.print("\n[bold yellow]Goodbye!:wave:")
+        self.console.print("\n[bold bright_yellow]Goodbye!:wave:")
         exit()
