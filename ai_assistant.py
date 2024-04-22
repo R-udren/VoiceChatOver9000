@@ -56,16 +56,13 @@ class AIAssistant:
         return answer
 
     def user_input(self):
-        text = self.console.input("\n[cyan]You[white]: ")
+        text = self.console.input("\n[bright_cyan]You[white]: ")
         if not text:
             with self.console.status(":microphone:[bright_yellow] Recording...", spinner="point"):
                 audio_path = self.audio.record_mic()
             with self.console.status(":loud_sound:[green] Transcribing...", spinner="arc"):
                 text = self.speech_to_text(audio_path)
-            if config.FANCY_WRITE:
-                fancy_printer(text)
-            else:
-                self.console.print(text, style="white")
+            self.console.print(f"\n[bright_cyan]You[white]: {text}")
             return text
         else:
             self.audio.play_audio(self.text_to_speech(text, "echo"))
@@ -75,11 +72,8 @@ class AIAssistant:
         with self.console.status(":robot:[green] Thinking...", spinner="point"):
             answer = self.conversation(user_text)
             path = self.text_to_speech(answer, "nova")
-        self.console.print("[bold green]Assistant[white]: ", end="")
-        if config.FANCY_WRITE:
-            fancy_printer(answer)
-        else:
-            self.console.print(answer, style="white")
+        self.console.print(f"[bold green]Assistant[white]: {answer}", end="")
+
         self.audio.play_audio(path)
         return answer
 
