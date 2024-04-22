@@ -8,6 +8,8 @@ from pydub.playback import play
 from pydub import AudioSegment
 from rich.console import Console
 
+from utils import typewritten_text
+
 load_dotenv()
 console = Console(style="bold cyan")
 
@@ -63,10 +65,9 @@ class AIAssistant:
 
         frames = []
         try:
-            with console.status(":microphone:Listening...", spinner="point"):
-                while True:
-                    data = stream.read(1024)
-                    frames.append(data)
+            while True:
+                data = stream.read(1024)
+                frames.append(data)
         except KeyboardInterrupt:
             pass
         finally:
@@ -89,11 +90,7 @@ class AIAssistant:
 
     def user_input(self):
         text = console.input("\nYou[white]: ")
-
-        if text.lower() == "exit":
-            self.shutdown()
-            return
-        elif not text:
+        if not text:
             with console.status(":microphone:[bright_yellow] Recording...", spinner="point"):
                 text = self._whisper_transcribe(self._listen())
             console.print(f"You[white]: {text}")
@@ -106,7 +103,7 @@ class AIAssistant:
         with console.status(":robot:[green] Thinking...", spinner="point"):
             answer = self._conversation(user_text)
             path = self._create_audio(answer, "nova")
-        console.print(f":computer: [bold cyan]Assistant[white]: {answer}")
+        console.print(f"[bold green]Assistant[white]: {answer}")
         self._play_audio(path)
         return answer
 
@@ -114,19 +111,23 @@ class AIAssistant:
         try:
             while True:
                 user_text = self.user_input()
+                if not user_text:
+                    continue
                 self.assistant(user_text)
         except (KeyboardInterrupt, EOFError):
-            self.shutdown()
+            console.print("\n\n[red]Interrupted by user.")
         finally:
             self.shutdown()
 
     def shutdown(self):
         self.audio.terminate()
-        console.print("\n[bold yellow]Goodbye!:wave:")
+        console.print("[bold yellow]Goodbye!:wave:")
+        exit()
 
 
 if __name__ == "__main__":
     assistant = AIAssistant()
+    console.clear()
     console.print("[blue]:wave: Welcome to the rovert's AI Assistant chat!\n"
                   "[yellow]:information: Empty input will trigger the microphone.\n"
                   "[red]:exclamation: Press CTRL+C to exit.")
