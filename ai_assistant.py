@@ -62,18 +62,25 @@ class AIAssistant:
                 audio_path = self.audio.record_mic()
             with self.console.status(":loud_sound:[green] Transcribing...", spinner="arc"):
                 text = self.speech_to_text(audio_path)
-            fancy_printer(text)
+            if config.FANCY_WRITE:
+                fancy_printer(text)
+            else:
+                self.console.print(text, style="white")
             return text
         else:
+            self.audio.play_audio(self.text_to_speech(text, "echo"))
             return text
 
     def assistant(self, user_text):
         with self.console.status(":robot:[green] Thinking...", spinner="point"):
             answer = self.conversation(user_text)
             path = self.text_to_speech(answer, "nova")
-        self.console.print("[bold green]Assistant[white]:", end=" ")
+        self.console.print("[bold green]Assistant[white]: ", end="")
+        if config.FANCY_WRITE:
+            fancy_printer(answer)
+        else:
+            self.console.print(answer, style="white")
         self.audio.play_audio(path)
-        fancy_printer(answer)
         return answer
 
     def main(self):
