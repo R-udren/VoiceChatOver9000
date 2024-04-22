@@ -58,7 +58,7 @@ class AIAssistant:
     def user_input(self):
         text = self.console.input("\n[bright_cyan]You[white]: ")
         if not text:
-            with self.console.status(":microphone:[bright_yellow] Recording...", spinner="point"):
+            with self.console.status(":microphone:[bright_yellow] Recording... (CTRL+C to Stop)", spinner="point"):
                 audio_path = self.audio.record_mic()
             with self.console.status(":loud_sound:[green] Transcribing...", spinner="arc"):
                 text = self.speech_to_text(audio_path)
