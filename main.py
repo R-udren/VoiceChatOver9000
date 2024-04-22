@@ -1,4 +1,5 @@
 from rich.console import Console
+from rich.panel import Panel
 from openai import OpenAI
 
 from ai_assistant import AIAssistant
@@ -12,9 +13,9 @@ def main():
     assistant = AIAssistant(console, openai_client)
 
     console.clear()
-    console.print("[blue]:wave: Welcome to the rovert's AI Assistant chat!\n"
-                  "[yellow]:information:  Empty input will trigger the microphone.\n"
-                  "[red]:exclamation: Press CTRL+C to exit.")
+    console.print(Panel.fit("[bright_magenta]:wave: Welcome to the rovert's AI Assistant chat!\n\n"
+                            "[yellow]:information:  Empty input will trigger the microphone.\n\n"
+                            "[red]:exclamation: Press CTRL+C to exit.", border_style="bold blue", title="AI Assistant"))
 
     assistant.main()
 
