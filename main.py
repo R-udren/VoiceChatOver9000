@@ -1,14 +1,15 @@
 import os
 import wave
-from dotenv import load_dotenv
-from colorama import Fore, Style, init
-from pydub import AudioSegment
-from pydub.playback import play
+
 import pyaudio
+from dotenv import load_dotenv
 from openai import OpenAI
+from pydub.playback import play
+from pydub import AudioSegment
+from rich.console import Console
 
 load_dotenv()
-init(autoreset=True)
+console = Console(style="bold cyan")
 
 
 class AIAssistant:
@@ -25,6 +26,10 @@ class AIAssistant:
             }
         ]
         self.counter = 0
+
+        # Create records directory
+        if not os.path.exists("records"):
+            os.makedirs("records", exist_ok=True)
 
     def _conversation(self, user_input):
         self.message_history.append({"role": "user", "content": user_input})
@@ -55,14 +60,15 @@ class AIAssistant:
     def _listen(self, filename="records/record.wav"):
         stream = self.audio.open(format=pyaudio.paInt16, channels=self.channels, rate=self.sample_rate, input=True,
                                  frames_per_buffer=1024)
-        print(f"{Fore.YELLOW}Listening... (CTRL+C to stop) {Style.RESET_ALL}")
+
         frames = []
         try:
-            while True:
-                data = stream.read(1024)
-                frames.append(data)
+            with console.status("Listening...", spinner="point"):
+                while True:
+                    data = stream.read(1024)
+                    frames.append(data)
         except KeyboardInterrupt:
-            print(f"{Fore.YELLOW}Stopped listening...")
+            pass
         finally:
             stream.stop_stream()
             stream.close()
@@ -82,14 +88,14 @@ class AIAssistant:
         return transcription.text
 
     def user_input(self):
-        try:
-            text = input(f"{Fore.LIGHTCYAN_EX}You{Style.RESET_ALL}: ")
-        except EOFError:
+        text = console.input("You: ")
+
+        if text.lower() == "exit":
             self.shutdown()
             return
-        if not text:
+        elif not text:
             text = self._whisper_transcribe(self._listen())
-            print(f"{Fore.LIGHTCYAN_EX}You{Style.RESET_ALL}: {text}")
+            console.print(f"You: {text}")
             return text
         else:
             self._play_audio(self._create_audio(text, "echo"))
@@ -98,7 +104,7 @@ class AIAssistant:
     def assistant(self, user_text):
         answer = self._conversation(user_text)
         path = self._create_audio(answer, "nova")
-        print(f"{Fore.LIGHTGREEN_EX}Assistant{Style.RESET_ALL}: {answer}")
+        console.print(f"Assistant: {answer}")
         self._play_audio(path)
         return answer
 
@@ -113,12 +119,12 @@ class AIAssistant:
 
     def shutdown(self):
         self.audio.terminate()
-        print(f"{Fore.LIGHTMAGENTA_EX}Goodbye!{Style.RESET_ALL}")
+        console.print("Goodbye!")
 
 
 if __name__ == "__main__":
     assistant = AIAssistant()
-    print(f"{Fore.LIGHTYELLOW_EX}Welcome to the Depressed AI Assistant chat!{Style.RESET_ALL}\n"
-          f"{Fore.LIGHTGREEN_EX}Empty input will trigger the microphone.{Style.RESET_ALL}\n"
-          f"{Fore.LIGHTRED_EX}Press CTRL+C to exit.{Style.RESET_ALL}")
+    console.print("Welcome to the rovert's AI Assistant chat!\n"
+                  "Empty input will trigger the microphone.\n"
+                  "Press CTRL+C to exit.")
     assistant.main()

@@ -1,5 +1,5 @@
 PyAudio
 python-dotenv
-colorama
 pydub
 openai
+rich
