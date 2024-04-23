@@ -3,7 +3,6 @@ from typing import Literal
 import threading
 
 from rich.console import Console
-from rich.markdown import Markdown
 from openai import OpenAI, APIConnectionError
 
 from audio_utils import AudioUtils
@@ -78,8 +77,8 @@ class AIAssistant:
         with self.console.status(":robot:[bright_green] Thinking...", spinner="point"):
             answer = self.conversation(user_text)
             path = self.text_to_speech(answer, "nova")
-        md = Markdown(answer, code_theme="dracula")
-        self.console.print(f"[bold bright_green]Assistant[bright_white]:", md)
+
+        self.console.print(f"[bright_magenta]Assistant[bright_white]: {answer}", markup=True)
 
         threading.Thread(target=self.audio.play_audio, args=(path,), daemon=True).start()
         return answer
