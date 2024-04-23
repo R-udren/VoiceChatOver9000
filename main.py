@@ -6,12 +6,13 @@ from openai import OpenAI
 from ai_assistant import AIAssistant
 from config import OPENAI_API_KEY, PROXY_URL
 
-console = Console(style="bold cyan")
-http_client = httpx.Client(
-    proxies={"http://": PROXY_URL, "https://": PROXY_URL},
-    transport=httpx.HTTPTransport(retries=3, local_address="0.0.0.0")
-)
-openai = OpenAI(api_key=OPENAI_API_KEY, http_client=http_client)
+console = Console(style="bold bright_white")
+if PROXY_URL:
+    http_client = httpx.Client(
+        proxies={"http://": PROXY_URL, "https://": PROXY_URL},
+        transport=httpx.HTTPTransport(retries=3, local_address="0.0.0.0")
+    )
+openai = OpenAI(api_key=OPENAI_API_KEY, http_client=http_client if PROXY_URL else None)
 
 
 def main():
