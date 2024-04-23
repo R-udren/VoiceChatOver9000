@@ -1,5 +1,6 @@
 import os
 from typing import Literal
+import threading
 
 from rich.console import Console
 from rich.markdown import Markdown
@@ -14,7 +15,7 @@ class AIAssistant:
         self.console: Console = console
         self.audio: AudioUtils = AudioUtils()
         self.client: OpenAI = openai_client
-        self.counter = 0
+        self.counters = {"nova": 0, "echo": 0}
         self.legend = config.LEGEND
 
         self.message_history = [
@@ -41,8 +42,10 @@ class AIAssistant:
             voice=voice,
             input=text,
         )
-        self.counter += 1
-        path = f"{config.RECORDS_DIR}/{voice}_{self.counter}_response.mp3"
+        if not os.path.exists(config.RECORDS_DIR):
+            os.makedirs(config.RECORDS_DIR)
+        path = f"{config.RECORDS_DIR}/{voice}_{self.counters[voice]}.mp3"
+        self.counters[voice] += 1
         response.write_to_file(path)
         return path
 
@@ -66,17 +69,19 @@ class AIAssistant:
             self.console.print(f"[bright_cyan]You[bright_white]: {text}")
             return text
         else:
-            self.audio.play_audio(self.text_to_speech(text, "echo"))
+            with self.console.status(":loud_sound:[bright_green] Speaking...", spinner="arc"):
+                audio_path = self.text_to_speech(text, "echo")
+            threading.Thread(target=self.audio.play_audio, args=(audio_path,), daemon=True).start()
             return text
 
     def assistant_answer(self, user_text):
         with self.console.status(":robot:[bright_green] Thinking...", spinner="point"):
             answer = self.conversation(user_text)
             path = self.text_to_speech(answer, "nova")
-            md = Markdown(answer)
-        self.console.print(f"[bold bright_green]Assistant[bright_white]: ", end="")
-        self.console.print(md)
-        self.audio.play_audio(path)
+        md = Markdown(answer, code_theme="dracula")
+        self.console.print(f"[bold bright_green]Assistant[bright_white]:", md)
+
+        threading.Thread(target=self.audio.play_audio, args=(path,), daemon=True).start()
         return answer
 
     def main(self):
