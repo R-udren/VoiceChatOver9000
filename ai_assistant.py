@@ -4,6 +4,7 @@ import threading
 
 from rich.console import Console
 from openai import OpenAI, APIConnectionError
+from rich.markdown import Markdown
 
 from audio_utils import AudioUtils
 import config
@@ -19,7 +20,8 @@ class AIAssistant:
 
         self.message_history = [
             {"role": "system", "content": self.legend},
-            {"role": "system", "content": f"You are chatting with USER! the Username is: {os.getlogin()}"},
+            {"role": "system", "content": f"You are chatting with USER! the Username is: {os.getlogin()}.for"
+                                          f"Don't forget to use emojis to express yourself!"},
             {"role": "user", "content": f"My name is {os.getlogin()}."},
             {"role": "assistant", "content": "I see..."}
         ]
@@ -59,17 +61,19 @@ class AIAssistant:
         return answer
 
     def user_input(self):
-        text = self.console.input("[bright_cyan]You[bright_white]: ")
-        if not text:
+        prompt = "[bright_green]You[bright_white]: "
+        text = self.console.input(prompt)
+        if not text or text.isspace():
             with self.console.status(":microphone:[bright_yellow] Recording... (CTRL+C to Stop)", spinner="point"):
                 audio_path = self.audio.record_mic()
-            with self.console.status(":loud_sound:[bright_green] Transcribing...", spinner="arc"):
+            with self.console.status(":loud_sound:[bright_magenta] Transcribing...", spinner="arc"):
                 text = self.speech_to_text(audio_path)
-            self.console.print(f"[bright_cyan]You[bright_white]: {text}")
+            self.console.print(prompt + text)
             return text
         else:
             with self.console.status(":loud_sound:[bright_green] Speaking...", spinner="arc"):
                 audio_path = self.text_to_speech(text, "echo")
+
             threading.Thread(target=self.audio.play_audio, args=(audio_path,), daemon=True).start()
             return text
 
@@ -78,7 +82,7 @@ class AIAssistant:
             answer = self.conversation(user_text)
             path = self.text_to_speech(answer, "nova")
 
-        self.console.print(f"[bright_magenta]Assistant[bright_white]: {answer}", markup=True)
+        self.console.print(Markdown("`Assistant`: " + answer, code_theme="dracula", inline_code_theme="dracula"))
 
         threading.Thread(target=self.audio.play_audio, args=(path,), daemon=True).start()
         return answer
