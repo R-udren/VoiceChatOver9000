@@ -1,7 +1,6 @@
 import httpx
 from rich.console import Console
 from rich.panel import Panel
-from rich.markdown import Markdown
 from openai import OpenAI
 
 from ai_assistant import AIAssistant
