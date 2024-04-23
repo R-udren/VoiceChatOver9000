@@ -57,26 +57,25 @@ class AIAssistant:
         return answer
 
     def user_input(self):
-        text = self.console.input("\n[bright_cyan]You[bright_white]: ")
+        text = self.console.input("[bright_cyan]You[bright_white]: ")
         if not text:
             with self.console.status(":microphone:[bright_yellow] Recording... (CTRL+C to Stop)", spinner="point"):
                 audio_path = self.audio.record_mic()
             with self.console.status(":loud_sound:[bright_green] Transcribing...", spinner="arc"):
                 text = self.speech_to_text(audio_path)
-            self.console.print(f"\n[bright_cyan]You[bright_white]: {text}")
+            self.console.print(f"[bright_cyan]You[bright_white]: {text}")
             return text
         else:
             self.audio.play_audio(self.text_to_speech(text, "echo"))
             return text
 
-    def assistant(self, user_text):
+    def assistant_answer(self, user_text):
         with self.console.status(":robot:[bright_green] Thinking...", spinner="point"):
             answer = self.conversation(user_text)
             path = self.text_to_speech(answer, "nova")
             md = Markdown(answer)
         self.console.print(f"[bold bright_green]Assistant[bright_white]: ", end="")
         self.console.print(md)
-
         self.audio.play_audio(path)
         return answer
 
@@ -86,7 +85,7 @@ class AIAssistant:
                 user_text = self.user_input()
                 if not user_text:
                     continue
-                self.assistant(user_text)
+                self.assistant_answer(user_text)
         except (KeyboardInterrupt, EOFError):
             self.console.print("\n\n:keyboard:[red] Interrupted by user.")
         except FileNotFoundError as fe:
