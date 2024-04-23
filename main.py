@@ -1,6 +1,7 @@
 import httpx
 from rich.console import Console
 from rich.panel import Panel
+from rich.markdown import Markdown
 from openai import OpenAI
 
 from ai_assistant import AIAssistant
@@ -8,7 +9,7 @@ from config import OPENAI_API_KEY, PROXY_URL
 
 
 def main():
-    console = Console(style="bold bright_white")
+    console = Console(style="bold bright_white", markup=True)
     http_client = None
     if PROXY_URL:
         http_client = httpx.Client(
