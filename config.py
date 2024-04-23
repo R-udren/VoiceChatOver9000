@@ -13,6 +13,8 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 PROXY_ADDRESS = os.getenv("PROXY_ADDRESS")
 PROXY_URL = f"http://{PROXY_ADDRESS}" if PROXY_ADDRESS else None
 
+LEGEND = ""
 
-with open("legend.txt", "r", encoding="utf-8") as file:
-    LEGEND = file.read()
+if os.path.exists("legend.txt"):
+    with open("legend.txt", "r", encoding="utf-8") as file:
+        LEGEND = file.read()
