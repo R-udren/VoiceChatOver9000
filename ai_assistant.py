@@ -1,6 +1,5 @@
 import os
 from typing import Literal
-import threading
 
 from rich.console import Console
 from openai import OpenAI, APIConnectionError
@@ -11,13 +10,15 @@ import config
 
 
 class AIAssistant:
-    def __init__(self, console, openai_client):
+    def __init__(self, console, openai_client, history_path: str = None):
         self.console: Console = console
         self.audio: AudioUtils = AudioUtils()
         self.client: OpenAI = openai_client
+
         self.counters = {"nova": 0, "echo": 0}
         self.legend = config.LEGEND
 
+        self.history_path = history_path
         self.message_history = [
             {"role": "system", "content": self.legend},
             {"role": "system", "content": f"You are chatting with USER! the Username is: {os.getlogin()}.for"
@@ -25,6 +26,12 @@ class AIAssistant:
             {"role": "user", "content": f"My name is {os.getlogin()}."},
             {"role": "assistant", "content": "I see..."}
         ]
+
+        if not os.path.exists(config.RECORDS_DIR):
+            os.makedirs(config.RECORDS_DIR)
+
+        if not self.client.api_key:
+            raise ValueError("OpenAI API key is not provided.")
 
     def speech_to_text(self, audio_path):
         if not os.path.exists(audio_path):
@@ -43,9 +50,7 @@ class AIAssistant:
             voice=voice,
             input=text,
         )
-        if not os.path.exists(config.RECORDS_DIR):
-            os.makedirs(config.RECORDS_DIR)
-        path = f"{config.RECORDS_DIR}/{voice}_{self.counters[voice]}.mp3"
+        path = os.path.join(config.RECORDS_DIR, f"{voice}_{self.counters[voice]}.mp3")
         self.counters[voice] += 1
         response.write_to_file(path)
         return path
@@ -71,42 +76,45 @@ class AIAssistant:
             self.console.print(prompt + text)
             return text
         else:
-            with self.console.status(":loud_sound:[bright_green] Speaking...", spinner="arc"):
+            with self.console.status(":loud_sound:[bright_yellow] Speaking...", spinner="arc"):
                 audio_path = self.text_to_speech(text, "echo")
-
-            threading.Thread(target=self.audio.play_audio, args=(audio_path,), daemon=True).start()
+                self.audio.play_audio_threaded(audio_path)
             return text
 
     def assistant_answer(self, user_text):
         with self.console.status(":robot:[bright_green] Thinking...", spinner="point"):
             answer = self.conversation(user_text)
-            path = self.text_to_speech(answer, "nova")
+            audio_path = self.text_to_speech(answer, "nova")
 
         self.console.print(Markdown("`Assistant`: " + answer, code_theme="dracula", inline_code_theme="dracula"))
-
-        threading.Thread(target=self.audio.play_audio, args=(path,), daemon=True).start()
+        self.audio.play_audio_threaded(audio_path)
         return answer
 
     def main(self):
         try:
             while True:
                 user_text = self.user_input()
-                if not user_text:
-                    continue
-                self.assistant_answer(user_text)
+                if user_text:
+                    self.assistant_answer(user_text)
         except (KeyboardInterrupt, EOFError):
-            self.console.print("\n\n:keyboard:[red] Interrupted by user.")
+            self.console.print("\n\n:keyboard:[red]  Interrupted by user.")
         except FileNotFoundError as fe:
-            self.console.print(f":floppy_disk:[red] FileNotFoundError:[white] {fe}")
+            self.console.print(f":floppy_disk:[red]  FileNotFoundError:[white] {fe}")
         except APIConnectionError as ace:
             self.console.print(f":satellite:[red] APIConnectionError:[white] {ace}\n\n"
                                f"[bright_red]Please check your internet connection or proxy.")
-        except Exception as e:
+        except Exception:
             self.console.print_exception(show_locals=False)
         finally:
             self.shutdown()
 
     def shutdown(self):
         del self.audio
+        if self.history_path:
+            with open(self.history_path, "a", encoding="utf-8") as file:
+                for message in self.message_history:
+                    file.write(f"{message['role']}: {message['content']}\n")
+            self.console.print("\n[bold bright_yellow]Chat history saved to [bright_magenta]history.txt")
+
         self.console.print("\n[bold bright_yellow]Goodbye!:wave:")
         exit()
