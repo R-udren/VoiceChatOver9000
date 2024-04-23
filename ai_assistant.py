@@ -1,9 +1,10 @@
 import os
 from typing import Literal
+import threading
 
 from rich.console import Console
-from rich.markdown import Markdown
 from openai import OpenAI, APIConnectionError
+from rich.markdown import Markdown
 
 from audio_utils import AudioUtils
 import config
@@ -14,12 +15,13 @@ class AIAssistant:
         self.console: Console = console
         self.audio: AudioUtils = AudioUtils()
         self.client: OpenAI = openai_client
-        self.counter = 0
+        self.counters = {"nova": 0, "echo": 0}
         self.legend = config.LEGEND
 
         self.message_history = [
             {"role": "system", "content": self.legend},
-            {"role": "system", "content": f"You are chatting with USER! the Username is: {os.getlogin()}"},
+            {"role": "system", "content": f"You are chatting with USER! the Username is: {os.getlogin()}.for"
+                                          f"Don't forget to use emojis to express yourself!"},
             {"role": "user", "content": f"My name is {os.getlogin()}."},
             {"role": "assistant", "content": "I see..."}
         ]
@@ -41,8 +43,10 @@ class AIAssistant:
             voice=voice,
             input=text,
         )
-        self.counter += 1
-        path = f"{config.RECORDS_DIR}/{voice}_{self.counter}_response.mp3"
+        if not os.path.exists(config.RECORDS_DIR):
+            os.makedirs(config.RECORDS_DIR)
+        path = f"{config.RECORDS_DIR}/{voice}_{self.counters[voice]}.mp3"
+        self.counters[voice] += 1
         response.write_to_file(path)
         return path
 
@@ -57,27 +61,30 @@ class AIAssistant:
         return answer
 
     def user_input(self):
-        text = self.console.input("\n[bright_cyan]You[bright_white]: ")
-        if not text:
+        prompt = "[bright_green]You[bright_white]: "
+        text = self.console.input(prompt)
+        if not text or text.isspace():
             with self.console.status(":microphone:[bright_yellow] Recording... (CTRL+C to Stop)", spinner="point"):
                 audio_path = self.audio.record_mic()
-            with self.console.status(":loud_sound:[bright_green] Transcribing...", spinner="arc"):
+            with self.console.status(":loud_sound:[bright_magenta] Transcribing...", spinner="arc"):
                 text = self.speech_to_text(audio_path)
-            self.console.print(f"\n[bright_cyan]You[bright_white]: {text}")
+            self.console.print(prompt + text)
             return text
         else:
-            self.audio.play_audio(self.text_to_speech(text, "echo"))
+            with self.console.status(":loud_sound:[bright_green] Speaking...", spinner="arc"):
+                audio_path = self.text_to_speech(text, "echo")
+
+            threading.Thread(target=self.audio.play_audio, args=(audio_path,), daemon=True).start()
             return text
 
-    def assistant(self, user_text):
+    def assistant_answer(self, user_text):
         with self.console.status(":robot:[bright_green] Thinking...", spinner="point"):
             answer = self.conversation(user_text)
             path = self.text_to_speech(answer, "nova")
-            md = Markdown(answer)
-        self.console.print(f"[bold bright_green]Assistant[bright_white]: ", end="")
-        self.console.print(md)
 
-        self.audio.play_audio(path)
+        self.console.print(Markdown("`Assistant`: " + answer, code_theme="dracula", inline_code_theme="dracula"))
+
+        threading.Thread(target=self.audio.play_audio, args=(path,), daemon=True).start()
         return answer
 
     def main(self):
@@ -86,7 +93,7 @@ class AIAssistant:
                 user_text = self.user_input()
                 if not user_text:
                     continue
-                self.assistant(user_text)
+                self.assistant_answer(user_text)
         except (KeyboardInterrupt, EOFError):
             self.console.print("\n\n:keyboard:[red] Interrupted by user.")
         except FileNotFoundError as fe:
