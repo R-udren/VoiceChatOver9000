@@ -1,5 +1,6 @@
 import os
 import wave
+import threading
 
 import pyaudio
 from pydub import AudioSegment
@@ -18,6 +19,11 @@ class AudioUtils:
             os.makedirs(self.records_dir)
 
         self.audio = pyaudio.PyAudio()
+        self.lock = threading.Lock()
+
+    def play_audio_threaded(self, path):
+        with self.lock:
+            threading.Thread(target=self.play_audio, args=(path,)).start()
 
     @staticmethod
     def play_audio(path):
