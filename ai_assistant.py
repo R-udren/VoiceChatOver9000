@@ -76,10 +76,9 @@ class AIAssistant:
             self.console.print(prompt + text)
             return text
         else:
-            with self.console.status(":loud_sound:[bright_green] Speaking...", spinner="arc"):
+            with self.console.status(":loud_sound:[bright_yellow] Speaking...", spinner="arc"):
                 audio_path = self.text_to_speech(text, "echo")
-
-            self.audio.play_audio_threaded(audio_path)
+                self.audio.play_audio_threaded(audio_path)
             return text
 
     def assistant_answer(self, user_text):
@@ -88,7 +87,6 @@ class AIAssistant:
             audio_path = self.text_to_speech(answer, "nova")
 
         self.console.print(Markdown("`Assistant`: " + answer, code_theme="dracula", inline_code_theme="dracula"))
-
         self.audio.play_audio_threaded(audio_path)
         return answer
 
@@ -99,9 +97,9 @@ class AIAssistant:
                 if user_text:
                     self.assistant_answer(user_text)
         except (KeyboardInterrupt, EOFError):
-            self.console.print("\n\n:keyboard:[red] Interrupted by user.")
+            self.console.print("\n\n:keyboard:[red]  Interrupted by user.")
         except FileNotFoundError as fe:
-            self.console.print(f":floppy_disk:[red] FileNotFoundError:[white] {fe}")
+            self.console.print(f":floppy_disk:[red]  FileNotFoundError:[white] {fe}")
         except APIConnectionError as ace:
             self.console.print(f":satellite:[red] APIConnectionError:[white] {ace}\n\n"
                                f"[bright_red]Please check your internet connection or proxy.")
