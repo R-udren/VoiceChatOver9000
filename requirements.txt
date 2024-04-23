@@ -1,6 +1,6 @@
-PyAudio~=0.2.14
-python-dotenv~=1.0.1
-pydub~=0.25.1
-openai~=1.23.2
-rich~=13.7.1
-httpx~=0.27.0
+PyAudio
+python-dotenv
+pydub
+openai
+rich
+httpx

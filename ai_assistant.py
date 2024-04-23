@@ -20,7 +20,7 @@ class AIAssistant:
         self.message_history = [
             {"role": "system", "content": self.legend},
             {"role": "system", "content": f"You are chatting with USER! the Username is: {os.getlogin()}"},
-            {"role": "user", "content": f"I am a {os.getlogin()}."},
+            {"role": "user", "content": f"My name is {os.getlogin()}."},
             {"role": "assistant", "content": "I see..."}
         ]
 
