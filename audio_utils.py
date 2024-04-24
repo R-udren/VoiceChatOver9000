@@ -31,13 +31,13 @@ class AudioUtils:
         if self.playback_thread and self.playback_thread.is_alive():
             self.playback_thread.join()
 
-    @staticmethod
-    def play_audio(path):
-        if os.path.exists(path):
-            audio = AudioSegment.from_file(path)
-            play(audio)
-        else:
-            raise FileNotFoundError(f"File not found: {path}")
+    def play_audio(self, path):
+        with self.lock:
+            if os.path.exists(path):
+                audio = AudioSegment.from_file(path)
+                play(audio)
+            else:
+                raise FileNotFoundError(f"File not found: {path}")
 
     def record_mic(self, filename="records/record.wav"):
         stream = self.audio.open(format=pyaudio.paInt16, channels=self.channels, rate=self.sample_rate, input=True,
