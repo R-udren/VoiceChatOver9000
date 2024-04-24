@@ -23,7 +23,7 @@ class AIAssistant:
             {"role": "system", "content": self.legend},
             {"role": "system", "content": f"You are chatting with USER! the Username is: {os.getlogin()}.for"
                                           f"Don't forget to use emojis to express yourself!"},
-            {"role": "user", "content": f"My name is {os.getlogin()}."},
+            {"role": "user", "content": f"My name is {os.getlogin()}. But don't call me in my name."},
             {"role": "assistant", "content": "I see..."}
         ]
 
