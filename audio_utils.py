@@ -7,14 +7,16 @@ import pyaudio
 from pydub import AudioSegment
 from pydub.playback import play
 
-from config import SAMPLE_RATE, CHANNELS, RECORDS_DIR
+from config import Config
 
 
 class AudioUtils:
-    def __init__(self, sample_rate=SAMPLE_RATE, channels=CHANNELS, records_dir=RECORDS_DIR):
-        self.sample_rate = sample_rate
-        self.channels = channels
-        self.records_dir = records_dir
+    def __init__(self):
+        self.config = Config()
+
+        self.sample_rate = self.config.SAMPLE_RATE
+        self.channels = self.config.CHANNELS
+        self.records_dir = self.config.RECORDS_DIR
 
         self.audio = pyaudio.PyAudio()
         self.lock = threading.Lock()
