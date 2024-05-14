@@ -15,9 +15,16 @@ class AIAssistant:
         self.audio: AudioUtils = AudioUtils()
         self.client: OpenAI = openai_client
 
+        # Models
+        self.language_model = "gpt-4o"
+        self.tts_model = "tts-1"
+        self.stt_model = "whisper-1"
+
+        #
         self.counters = {"nova": 0, "echo": 0}
         self.legend = config.LEGEND
 
+        # History
         self.history_path = history_path
         self.message_history = [
             {"role": "system", "content": self.legend},
@@ -26,9 +33,6 @@ class AIAssistant:
             {"role": "user", "content": f"My name is {os.getlogin()}. But don't call me in my name."},
             {"role": "assistant", "content": "I see..."}
         ]
-
-        if not os.path.exists(config.RECORDS_DIR):
-            os.makedirs(config.RECORDS_DIR)
 
         if not self.client.api_key:
             raise ValueError("OpenAI API key is not provided.")
@@ -39,14 +43,14 @@ class AIAssistant:
 
         audio_file = open(audio_path, "rb")
         transcription = self.client.audio.transcriptions.create(
-            model="whisper-1",
+            model=self.stt_model,
             file=audio_file
         )
         return transcription.text
 
     def text_to_speech(self, text, voice: Literal["nova", "echo"] = "nova"):
         response = self.client.audio.speech.create(
-            model="tts-1",
+            model=self.tts_model,
             voice=voice,
             input=text,
         )
@@ -58,7 +62,7 @@ class AIAssistant:
     def conversation(self, user_input):
         self.message_history.append({"role": "user", "content": user_input})
         response = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model=self.language_model,
             messages=self.message_history,
         )
         answer = response.choices[0].message.content
