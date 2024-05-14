@@ -2,6 +2,7 @@ import os
 from typing import Literal
 
 from openai import OpenAI, APIConnectionError
+from openai.types.chat_model import ChatModel
 from rich.console import Console
 from rich.markdown import Markdown
 
@@ -17,12 +18,13 @@ class AIAssistant:
         self.client: OpenAI = openai_client
 
         # Models
-        self.language_model = "gpt-4o"
-        self.tts_model = "tts-1"
-        self.stt_model = "whisper-1"
+        self.language_model: ChatModel = "gpt-4o"
+        self.tts_model: Literal["tts-1", "tts-1-hd"] = "tts-1"
+        self.stt_model: Literal["whisper-1"] = "whisper-1"
+
+        self.voices = {"User": "alloy", "Assistant": "nova", "System": "echo"}
 
         # History
-        self.counters = {"nova": 0, "echo": 0}
         self.history_path = history_path
         self.message_history = [
             {"role": "system", "content": self.config.LEGEND},
@@ -46,14 +48,13 @@ class AIAssistant:
         )
         return transcription.text
 
-    def text_to_speech(self, text, voice: Literal["nova", "echo"] = "nova"):
+    def text_to_speech(self, text, voice: Literal["alloy", "echo", "fable", "onyx", "nova", "shimmer"] = "nova"):
         response = self.client.audio.speech.create(
             model=self.tts_model,
             voice=voice,
             input=text,
         )
         path = os.path.join(self.config.RECORDS_DIR, f"{voice}_{self.counters[voice]}.mp3")
-        self.counters[voice] += 1
         response.write_to_file(path)
         return path
 
