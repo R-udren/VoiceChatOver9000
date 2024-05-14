@@ -1,17 +1,18 @@
 import os
 from typing import Literal
 
-from rich.console import Console
 from openai import OpenAI, APIConnectionError
+from rich.console import Console
 from rich.markdown import Markdown
 
 from audio_utils import AudioUtils
-import config
+from config import Config
 
 
 class AIAssistant:
     def __init__(self, console, openai_client, history_path: str = None):
         self.console: Console = console
+        self.config: Config = Config()
         self.audio: AudioUtils = AudioUtils()
         self.client: OpenAI = openai_client
 
@@ -20,14 +21,11 @@ class AIAssistant:
         self.tts_model = "tts-1"
         self.stt_model = "whisper-1"
 
-        #
-        self.counters = {"nova": 0, "echo": 0}
-        self.legend = config.LEGEND
-
         # History
+        self.counters = {"nova": 0, "echo": 0}
         self.history_path = history_path
         self.message_history = [
-            {"role": "system", "content": self.legend},
+            {"role": "system", "content": self.config.LEGEND},
             {"role": "system", "content": f"You are chatting with USER! the Username is: {os.getlogin()}.for"
                                           f"Don't forget to use emojis to express yourself!"},
             {"role": "user", "content": f"My name is {os.getlogin()}. But don't call me in my name."},
@@ -54,7 +52,7 @@ class AIAssistant:
             voice=voice,
             input=text,
         )
-        path = os.path.join(config.RECORDS_DIR, f"{voice}_{self.counters[voice]}.mp3")
+        path = os.path.join(self.config.RECORDS_DIR, f"{voice}_{self.counters[voice]}.mp3")
         self.counters[voice] += 1
         response.write_to_file(path)
         return path

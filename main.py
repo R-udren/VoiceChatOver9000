@@ -1,21 +1,16 @@
-import httpx
+from openai import OpenAI
 from rich.console import Console
 from rich.panel import Panel
-from openai import OpenAI
 
 from ai_assistant import AIAssistant
-from config import OPENAI_API_KEY, PROXY_URL
+from config import Config
 
 
 def main():
+    config = Config()
     console = Console(style="bold bright_white", markup=True)
-    http_client = None
-    if PROXY_URL:
-        http_client = httpx.Client(
-            proxies={"http://": PROXY_URL, "https://": PROXY_URL},
-            transport=httpx.HTTPTransport(retries=3, local_address="0.0.0.0")
-        )
-    openai = OpenAI(api_key=OPENAI_API_KEY, http_client=http_client)
+
+    openai = OpenAI(api_key=config.OPENAI_API_KEY, http_client=config.HTTPX_CLIENT)
     assistant = AIAssistant(console, openai)
 
     console.clear()
