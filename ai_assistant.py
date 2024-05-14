@@ -1,7 +1,7 @@
 import os
-from typing import Literal
+from typing import Literal, Dict
 
-from openai import OpenAI, APIConnectionError
+from openai import OpenAI, APIConnectionError, NotFoundError
 from openai.types.chat_model import ChatModel
 from rich.console import Console
 from rich.markdown import Markdown
@@ -11,18 +11,23 @@ from config import Config
 
 
 class AIAssistant:
-    def __init__(self, console, openai_client, history_path: str = None):
+    def __init__(self, console: Console, history_path: str = None):
         self.console: Console = console
         self.config: Config = Config()
         self.audio: AudioUtils = AudioUtils()
-        self.client: OpenAI = openai_client
+        self.client: OpenAI = OpenAI(api_key=self.config.OPENAI_API_KEY, http_client=self.config.HTTPX_CLIENT)
 
         # Models
-        self.language_model: ChatModel = "gpt-4o"
+        self.language_model: ChatModel = "gpt-3.5-turbo"
         self.tts_model: Literal["tts-1", "tts-1-hd"] = "tts-1"
         self.stt_model: Literal["whisper-1"] = "whisper-1"
 
-        self.voices = {"User": "alloy", "Assistant": "nova", "System": "echo"}
+        # Voices
+        self.voices: Dict[str, Literal["alloy", "echo", "fable", "onyx", "nova", "shimmer"]] = {
+            "User": "alloy",
+            "Assistant": "nova",
+            "System": "echo"
+        }
         self.counters = {voice: 0 for voice in self.voices.values()}
 
         # History
@@ -82,14 +87,15 @@ class AIAssistant:
             return text
         else:
             with self.console.status(":loud_sound:[bright_yellow] Speaking...", spinner="arc"):
-                audio_path = self.text_to_speech(text, "echo")
+                audio_path = self.text_to_speech(text, self.voices.get("User", "alloy"))
                 self.audio.play_audio_threaded(audio_path)
             return text
 
     def assistant_answer(self, user_text):
         with self.console.status(":robot:[bright_green] Thinking...", spinner="point"):
             answer = self.conversation(user_text)
-            audio_path = self.text_to_speech(answer, "nova")
+
+            audio_path = self.text_to_speech(answer, self.voices.get("Assistant", "nova"))
 
         self.console.print(Markdown("`Assistant`: " + answer, code_theme="dracula", inline_code_theme="dracula"))
         self.audio.play_audio_threaded(audio_path)
@@ -101,25 +107,29 @@ class AIAssistant:
                 user_text = self.user_input()
                 if user_text:
                     self.assistant_answer(user_text)
+
         except (KeyboardInterrupt, EOFError):
             self.console.print("\n\n:keyboard:[red]  Interrupted by user.")
         except FileNotFoundError as fe:
             self.console.print(f":floppy_disk:[red]  FileNotFoundError:[white] {fe}")
+        except NotFoundError as nfe:
+            self.console.print(f":mag:[red] NotFoundError:[white] {nfe}")
         except APIConnectionError as ace:
             self.console.print(f":satellite:[red] APIConnectionError:[white] {ace}\n\n"
                                f"[bright_red]Please check your internet connection or proxy.")
         except Exception:
-            self.console.print_exception(show_locals=False)
+            self.console.print_exception(show_locals=True)
         finally:
             self.shutdown()
 
     def shutdown(self):
-        del self.audio
+        del self.audio  # is equivalent to self.audio.terminate()
+        self.console.set_alt_screen(False)
+
         if self.history_path:
             with open(self.history_path, "a", encoding="utf-8") as file:
                 for message in self.message_history:
                     file.write(f"{message['role']}: {message['content']}\n")
-            self.console.print("\n[bold bright_yellow]Chat history saved to [bright_magenta]history.txt")
-
+            self.console.print(f"\n[bold bright_yellow]Chat history saved to [bright_magenta]{self.history_path}")
         self.console.print("\n[bold bright_yellow]Goodbye!:wave:")
         exit()

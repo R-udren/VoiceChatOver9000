@@ -13,6 +13,7 @@ class Config:
         self.SAMPLE_RATE = 44100
         self.CHANNELS = 1
         self.RECORDS_DIR = "records"
+        self.legends_path = "legends.txt"
 
         self.OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
@@ -27,9 +28,9 @@ class Config:
 
     def __legend(self):
         legend = ""
-        if os.path.exists("legend.txt"):
-            with open("legend.txt", "r", encoding="utf-8") as file:
-                self.LEGEND = file.read()
+        if os.path.exists(self.legends_path):
+            with open(self.legends_path, "r", encoding="utf-8") as file:
+                legend = file.read()
         return legend
 
     def __httpx_client(self):

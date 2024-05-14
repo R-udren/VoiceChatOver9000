@@ -1,17 +1,13 @@
-from openai import OpenAI
 from rich.console import Console
 from rich.panel import Panel
 
 from ai_assistant import AIAssistant
-from config import Config
 
 
 def main():
-    config = Config()
     console = Console(style="bold bright_white", markup=True)
 
-    openai = OpenAI(api_key=config.OPENAI_API_KEY, http_client=config.HTTPX_CLIENT)
-    assistant = AIAssistant(console, openai)
+    assistant = AIAssistant(console=console)
 
     console.clear()
     console.print(Panel.fit("[bright_magenta]:wave: Welcome to the rovert's AI Assistant chat!\n\n"
