@@ -23,6 +23,7 @@ class AIAssistant:
         self.stt_model: Literal["whisper-1"] = "whisper-1"
 
         self.voices = {"User": "alloy", "Assistant": "nova", "System": "echo"}
+        self.counters = {voice: 0 for voice in self.voices.values()}
 
         # History
         self.history_path = history_path
@@ -55,6 +56,7 @@ class AIAssistant:
             input=text,
         )
         path = os.path.join(self.config.RECORDS_DIR, f"{voice}_{self.counters[voice]}.mp3")
+        self.counters[voice] += 1
         response.write_to_file(path)
         return path
 
