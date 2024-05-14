@@ -7,12 +7,12 @@ import pyaudio
 from pydub import AudioSegment
 from pydub.playback import play
 
-from config import Config
+from config import cfg
 
 
 class AudioUtils:
     def __init__(self):
-        self.config = Config()
+        self.config = cfg
 
         self.sample_rate = self.config.SAMPLE_RATE
         self.channels = self.config.CHANNELS

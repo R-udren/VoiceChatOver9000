@@ -7,14 +7,14 @@ from rich.console import Console
 from rich.markdown import Markdown
 
 from audio_utils import AudioUtils
-from config import Config
+from config import cfg
 
 
 class AIAssistant:
     def __init__(self, console: Console, history_path: str = None):
         self.console: Console = console
-        self.config: Config = Config()
         self.audio: AudioUtils = AudioUtils()
+        self.config = cfg
         self.client: OpenAI = OpenAI(api_key=self.config.OPENAI_API_KEY, http_client=self.config.HTTPX_CLIENT)
 
         # Models
