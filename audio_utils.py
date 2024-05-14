@@ -1,6 +1,6 @@
 import os
-import wave
 import threading
+import wave
 from typing import Optional
 
 import pyaudio
@@ -11,17 +11,17 @@ from config import SAMPLE_RATE, CHANNELS, RECORDS_DIR
 
 
 class AudioUtils:
-    def __init__(self):
-        self.sample_rate = SAMPLE_RATE
-        self.channels = CHANNELS
-        self.records_dir = RECORDS_DIR
-
-        if not os.path.exists(self.records_dir):
-            os.makedirs(self.records_dir)
+    def __init__(self, sample_rate=SAMPLE_RATE, channels=CHANNELS, records_dir=RECORDS_DIR):
+        self.sample_rate = sample_rate
+        self.channels = channels
+        self.records_dir = records_dir
 
         self.audio = pyaudio.PyAudio()
         self.lock = threading.Lock()
         self.playback_thread: Optional[threading.Thread] = None
+
+        if not os.path.exists(self.records_dir):
+            os.makedirs(self.records_dir)
 
     def play_audio_threaded(self, path):
         self.playback_thread = threading.Thread(target=self.play_audio, args=(path,), daemon=True)
@@ -42,7 +42,6 @@ class AudioUtils:
     def record_mic(self, filename="records/record.wav"):
         stream = self.audio.open(format=pyaudio.paInt16, channels=self.channels, rate=self.sample_rate, input=True,
                                  frames_per_buffer=1024)
-
         frames = []
         try:
             while True:
