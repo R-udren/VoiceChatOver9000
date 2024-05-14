@@ -43,6 +43,8 @@ class Config:
         return http_client
 
 
+cfg = Config()
+
 def setup_logger(log_level: int = logging.INFO):
     log = logging.getLogger(__name__)
     log.setLevel(log_level)
