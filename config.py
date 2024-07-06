@@ -13,7 +13,7 @@ class Config:
         self.SAMPLE_RATE = 44100
         self.CHANNELS = 1
         self.RECORDS_DIR = "records"
-        self.legends_path = "legends.txt"
+        self.legends_path = "legend.txt"
 
         self.OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
@@ -41,7 +41,6 @@ class Config:
                 transport=httpx.HTTPTransport(retries=3, local_address="0.0.0.0")
             )
         return http_client
-
 
 cfg = Config()
 
