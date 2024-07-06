@@ -7,14 +7,14 @@ from rich.console import Console
 from rich.markdown import Markdown
 
 from audio_utils import AudioUtils
-from config import cfg
+from config import cfg, Config
 
 
 class AIAssistant:
     def __init__(self, console: Console, history_path: str = None):
         self.console: Console = console
         self.audio: AudioUtils = AudioUtils()
-        self.config = cfg
+        self.config: Config = cfg
         self.client: OpenAI = OpenAI(api_key=self.config.OPENAI_API_KEY, http_client=self.config.HTTPX_CLIENT)
 
         # Models
@@ -28,16 +28,21 @@ class AIAssistant:
             "Assistant": "nova",
             "System": "echo"
         }
-        self.counters = {voice: 0 for voice in self.voices.values()}
+        self._counters = {voice: 0 for voice in self.voices.values()}
 
         # History
         self.history_path = history_path
         self.message_history = [
             {"role": "system", "content": self.config.LEGEND},
-            {"role": "system", "content": f"You are chatting with USER! the Username is: {os.getlogin()}.for"
-                                          f"Don't forget to use emojis to express yourself!"},
+            {
+                "role": "system", "content":
+
+                f"You are chatting with USER: {os.getlogin()}.\n"
+                f"Don't forget to use emojis to express yourself!\n"
+                f"You can suggest to use microphone by pressing Enter without typing anything.\n"
+                f"Also CTRL+C to exit the chat."
+            },
             {"role": "user", "content": f"My name is {os.getlogin()}. But don't call me in my name."},
-            {"role": "assistant", "content": "I see..."}
         ]
 
         if not self.client.api_key:
@@ -60,8 +65,8 @@ class AIAssistant:
             voice=voice,
             input=text,
         )
-        path = os.path.join(self.config.RECORDS_DIR, f"{voice}_{self.counters[voice]}.mp3")
-        self.counters[voice] += 1
+        path = os.path.join(self.config.RECORDS_DIR, f"{voice}_{self._counters[voice]}.mp3")
+        self._counters[voice] += 1
         response.write_to_file(path)
         return path
 
@@ -118,7 +123,7 @@ class AIAssistant:
             self.console.print(f":satellite:[red] APIConnectionError:[white] {ace}\n\n"
                                f"[bright_red]Please check your internet connection or proxy.")
         except Exception:
-            self.console.print_exception(show_locals=True)
+            self.console.print_exception(max_frames=2)
         finally:
             self.shutdown()
 
