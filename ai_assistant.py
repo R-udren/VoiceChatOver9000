@@ -35,14 +35,11 @@ class AIAssistant:
         self.message_history = [
             {"role": "system", "content": self.config.LEGEND},
             {
-                "role": "system", "content":
-
-                f"You are chatting with USER: {os.getlogin()}.\n"
-                f"Don't forget to use emojis to express yourself!\n"
-                f"You can suggest to use microphone by pressing Enter without typing anything.\n"
-                f"Also CTRL+C to exit the chat."
+                "role": "system",
+                "content":
+                    f"You are chatting with USER: {os.getlogin()}.\n"
+                    f"Don't forget to use emojis to express yourself!\n"
             },
-            {"role": "user", "content": f"My name is {os.getlogin()}. But don't call me in my name."},
         ]
 
         if not self.client.api_key:
@@ -83,27 +80,34 @@ class AIAssistant:
     def user_input(self):
         prompt = "[bright_green]You[bright_white]: "
         text = self.console.input(prompt)
-        if not text or text.isspace():
+        if self.config.AI_LISTENS and (not text or text.isspace()):
+
             with self.console.status(":microphone:[bright_yellow] Recording... (CTRL+C to Stop)", spinner="point"):
                 audio_path = self.audio.record_mic()
+
             with self.console.status(":loud_sound:[bright_magenta] Transcribing...", spinner="arc"):
                 text = self.speech_to_text(audio_path)
+
             self.console.print(prompt + text)
-            return text
         else:
-            with self.console.status(":loud_sound:[bright_yellow] Speaking...", spinner="arc"):
-                audio_path = self.text_to_speech(text, self.voices.get("User", "alloy"))
-                self.audio.play_audio_threaded(audio_path)
-            return text
+            if self.config.USER_SPEAKS:
+                with self.console.status(":loud_sound:[bright_yellow] Speaking...", spinner="arc"):
+                    audio_path = self.text_to_speech(text, self.voices.get("User", "alloy"))
+                    self.audio.play_audio_threaded(audio_path)
+        return text
 
     def assistant_answer(self, user_text):
+        audio_path = ""
         with self.console.status(":robot:[bright_green] Thinking...", spinner="point"):
             answer = self.conversation(user_text)
 
-            audio_path = self.text_to_speech(answer, self.voices.get("Assistant", "nova"))
+            if answer and self.config.AI_SPEAKS:
+                audio_path = self.text_to_speech(answer, self.voices.get("Assistant", "nova"))
 
         self.console.print(Markdown("`Assistant`: " + answer, code_theme="dracula", inline_code_theme="dracula"))
-        self.audio.play_audio_threaded(audio_path)
+
+        if self.config.AI_SPEAKS and os.path.exists(audio_path):
+            self.audio.play_audio_threaded(audio_path)
         return answer
 
     def main(self):

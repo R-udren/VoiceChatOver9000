@@ -6,9 +6,8 @@ from ai_assistant import AIAssistant
 
 def main():
     console = Console(style="bold bright_white", markup=True)
-
     assistant = AIAssistant(console=console)
-
+    console.set_alt_screen(enable=True)
     console.clear()
     console.print(Panel.fit("[bright_magenta]:wave: Welcome to the rovert's AI Assistant chat!\n\n"
                             "[bright_yellow]:information:  Empty input will trigger the microphone.\n\n"
@@ -16,6 +15,7 @@ def main():
                             border_style="bold blue", title="AI Assistant"))
 
     assistant.main()
+    console.set_alt_screen(enable=False)
 
 
 if __name__ == "__main__":

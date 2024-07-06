@@ -21,6 +21,10 @@ class Config:
         self.HTTPX_CLIENT = self.__httpx_client()
         self.LEGEND = self.__legend()
 
+        self.AI_SPEAKS = True
+        self.AI_LISTENS = True
+        self.USER_SPEAKS = True
+
     @staticmethod
     def __proxy_url():
         proxy_url = os.getenv("PROXY_URL")
