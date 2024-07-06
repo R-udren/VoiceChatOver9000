@@ -6,9 +6,9 @@ This project is an AI Assistant built using Python. It uses OpenAI's GPT-3.5-tur
 
 - Python 3.9 or later (script will download 3.12)
 - `ffmpeg` multimedia framework
-- API key from OpenAI
-- `winget` package manager
-- `git` version control system
+- [OpenAI](https://platform.openai.com/api-keys) API key
+- `winget` package manager (Optional)
+- `git` version control system (Optional)
 
 
 ## Installation
@@ -25,7 +25,7 @@ This project is an AI Assistant built using Python. It uses OpenAI's GPT-3.5-tur
     ```bash
     echo "OPENAI_API_KEY=YOUR_API_KEY" > .env
     ```
-
+   
 3. Run batch script.
 
     ```bash
