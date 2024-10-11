@@ -1,6 +1,6 @@
 # AI Assistant
 
-This project is an AI Assistant built using Python. It uses OpenAI's GPT-3.5-turbo model for conversation and the Whisper API for speech recognition.
+This project is an AI Assistant built using Python. It uses OpenAI's models for conversation and the Whisper API for speech recognition.
 
 ## Prerequisites
 
