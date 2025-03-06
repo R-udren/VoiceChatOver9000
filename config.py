@@ -23,7 +23,7 @@ class Config:
 
         self.AI_SPEAKS = True
         self.AI_LISTENS = True
-        self.USER_SPEAKS = True
+        self.USER_SPEAKS = False
 
     @staticmethod
     def __proxy_url():
@@ -42,11 +42,13 @@ class Config:
         if self.PROXY_URL:
             http_client = httpx.Client(
                 proxies={"http://": self.PROXY_URL, "https://": self.PROXY_URL},
-                transport=httpx.HTTPTransport(retries=3, local_address="0.0.0.0")
+                transport=httpx.HTTPTransport(retries=3, local_address="0.0.0.0"),
             )
         return http_client
 
+
 cfg = Config()
+
 
 def setup_logger(log_level: int = logging.INFO):
     log = logging.getLogger(__name__)
@@ -60,7 +62,9 @@ def setup_logger(log_level: int = logging.INFO):
     file_formatter = logging.Formatter(log_format, style="{", datefmt=time_format)
 
     # Handlers
-    rich_handler = RichHandler(show_time=True, rich_tracebacks=True, log_time_format=time_format)
+    rich_handler = RichHandler(
+        show_time=True, rich_tracebacks=True, log_time_format=time_format
+    )
     rich_handler.setFormatter(formatter)
 
     file_handler = logging.FileHandler("output.log")
