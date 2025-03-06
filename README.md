@@ -26,8 +26,13 @@ This project is an AI Assistant built using Python. It uses OpenAI's models for 
     echo "OPENAI_API_KEY=YOUR_API_KEY" > .env
     ```
    
-3. Run batch script.
-
+3. Run script.
+    With Python:
+    ```bash
+    python main.py
+    ```
+    
+    Or by using batch script:
     ```bash
     ./run.bat
     ```
