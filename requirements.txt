@@ -4,3 +4,4 @@ pydub
 openai
 rich
 httpx
+audioop-lts
