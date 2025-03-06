@@ -1,13 +1,15 @@
 import os
-from typing import Literal, Dict
+from typing import Dict, Literal
 
-from openai import OpenAI, APIConnectionError, NotFoundError
+from openai import APIConnectionError, NotFoundError, OpenAI
+from openai.types.audio.speech_model import SpeechModel
+from openai.types.audio_model import AudioModel
 from openai.types.chat_model import ChatModel
 from rich.console import Console
 from rich.markdown import Markdown
 
 from audio_utils import AudioUtils
-from config import cfg, Config
+from config import Config, cfg
 
 
 class AIAssistant:
@@ -15,19 +17,20 @@ class AIAssistant:
         self.console: Console = console
         self.audio: AudioUtils = AudioUtils()
         self.config: Config = cfg
-        self.client: OpenAI = OpenAI(api_key=self.config.OPENAI_API_KEY, http_client=self.config.HTTPX_CLIENT)
+        self.client: OpenAI = OpenAI(
+            api_key=self.config.OPENAI_API_KEY, http_client=self.config.HTTPX_CLIENT
+        )
 
         # Models
-        self.language_model: ChatModel = "gpt-3.5-turbo"
-        self.tts_model: Literal["tts-1", "tts-1-hd"] = "tts-1"
-        self.stt_model: Literal["whisper-1"] = "whisper-1"
+        self.language_model: ChatModel = "gpt-4o-mini"
+        self.tts_model: SpeechModel = "tts-1"
+        self.stt_model: AudioModel = "whisper-1"
 
         # Voices
-        self.voices: Dict[str, Literal["alloy", "echo", "fable", "onyx", "nova", "shimmer"]] = {
-            "User": "alloy",
-            "Assistant": "nova",
-            "System": "echo"
-        }
+        self.voices: Dict[
+            Literal["User", "Assistant", "System"],
+            Literal["alloy", "echo", "fable", "onyx", "nova", "shimmer"],
+        ] = {"User": "alloy", "Assistant": "nova", "System": "echo"}
         self._counters = {voice: 0 for voice in self.voices.values()}
 
         # History
@@ -36,9 +39,8 @@ class AIAssistant:
             {"role": "system", "content": self.config.LEGEND},
             {
                 "role": "system",
-                "content":
-                    f"You are chatting with USER: {os.getlogin()}.\n"
-                    f"Don't forget to use emojis to express yourself!\n"
+                "content": f"You are chatting with USER: {os.getlogin()}.\n"
+                f"Don't forget to use emojis to express yourself!\n",
             },
         ]
 
@@ -51,18 +53,23 @@ class AIAssistant:
 
         audio_file = open(audio_path, "rb")
         transcription = self.client.audio.transcriptions.create(
-            model=self.stt_model,
-            file=audio_file
+            model=self.stt_model, file=audio_file
         )
         return transcription.text
 
-    def text_to_speech(self, text, voice: Literal["alloy", "echo", "fable", "onyx", "nova", "shimmer"] = "nova"):
+    def text_to_speech(
+        self,
+        text,
+        voice: Literal["alloy", "echo", "fable", "onyx", "nova", "shimmer"] = "nova",
+    ):
         response = self.client.audio.speech.create(
             model=self.tts_model,
             voice=voice,
             input=text,
         )
-        path = os.path.join(self.config.RECORDS_DIR, f"{voice}_{self._counters[voice]}.mp3")
+        path = os.path.join(
+            self.config.RECORDS_DIR, f"{voice}_{self._counters[voice]}.mp3"
+        )
         self._counters[voice] += 1
         response.write_to_file(path)
         return path
@@ -81,18 +88,26 @@ class AIAssistant:
         prompt = "[bright_green]You[bright_white]: "
         text = self.console.input(prompt)
         if self.config.AI_LISTENS and (not text or text.isspace()):
-
-            with self.console.status(":microphone:[bright_yellow] Recording... (CTRL+C to Stop)", spinner="point"):
+            with self.console.status(
+                ":microphone:[bright_yellow] Recording... (CTRL+C to Stop)",
+                spinner="point",
+            ):
                 audio_path = self.audio.record_mic()
 
-            with self.console.status(":loud_sound:[bright_magenta] Transcribing...", spinner="arc"):
+            with self.console.status(
+                ":loud_sound:[bright_magenta] Transcribing...", spinner="arc"
+            ):
                 text = self.speech_to_text(audio_path)
 
             self.console.print(prompt + text)
         else:
             if self.config.USER_SPEAKS:
-                with self.console.status(":loud_sound:[bright_yellow] Speaking...", spinner="arc"):
-                    audio_path = self.text_to_speech(text, self.voices.get("User", "alloy"))
+                with self.console.status(
+                    ":loud_sound:[bright_yellow] Speaking...", spinner="arc"
+                ):
+                    audio_path = self.text_to_speech(
+                        text, self.voices.get("User", "alloy")
+                    )
                     self.audio.play_audio_threaded(audio_path)
         return text
 
@@ -102,9 +117,17 @@ class AIAssistant:
             answer = self.conversation(user_text)
 
             if answer and self.config.AI_SPEAKS:
-                audio_path = self.text_to_speech(answer, self.voices.get("Assistant", "nova"))
+                audio_path = self.text_to_speech(
+                    answer, self.voices.get("Assistant", "nova")
+                )
 
-        self.console.print(Markdown("`Assistant`: " + answer, code_theme="dracula", inline_code_theme="dracula"))
+        self.console.print(
+            Markdown(
+                "`Assistant`: " + answer,
+                code_theme="dracula",
+                inline_code_theme="dracula",
+            )
+        )
 
         if self.config.AI_SPEAKS and os.path.exists(audio_path):
             self.audio.play_audio_threaded(audio_path)
@@ -124,10 +147,13 @@ class AIAssistant:
         except NotFoundError as nfe:
             self.console.print(f":mag:[red] NotFoundError:[white] {nfe}")
         except APIConnectionError as ace:
-            self.console.print(f":satellite:[red] APIConnectionError:[white] {ace}\n\n"
-                               f"[bright_red]Please check your internet connection or proxy.")
+            self.console.print(
+                f":satellite:[red] APIConnectionError:[white] {ace}\n\n"
+                f"[bright_red]Please check your internet connection or proxy."
+            )
         except Exception:
             self.console.print_exception(max_frames=2)
+            self.console.input("\n\n:warning:[red]  Press Enter to exit.")
         finally:
             self.shutdown()
 
@@ -139,6 +165,8 @@ class AIAssistant:
             with open(self.history_path, "a", encoding="utf-8") as file:
                 for message in self.message_history:
                     file.write(f"{message['role']}: {message['content']}\n")
-            self.console.print(f"\n[bold bright_yellow]Chat history saved to [bright_magenta]{self.history_path}")
+            self.console.print(
+                f"\n[bold bright_yellow]Chat history saved to [bright_magenta]{self.history_path}"
+            )
         self.console.print("\n[bold bright_yellow]Goodbye!:wave:")
         exit()
