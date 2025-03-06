@@ -20,7 +20,7 @@ This project is an AI Assistant built using Python. It uses OpenAI's models for 
     cd VoiceChatOver9000
     ```
    
-2. Set your API key in .env file:
+2. Set your [API key](https://platform.openai.com/api-keys) in .env file:
 
     ```bash
     echo "OPENAI_API_KEY=YOUR_API_KEY" > .env
