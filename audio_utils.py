@@ -26,7 +26,9 @@ class AudioUtils:
             os.makedirs(self.records_dir)
 
     def play_audio_threaded(self, path):
-        self.playback_thread = threading.Thread(target=self.play_audio, args=(path,), daemon=True)
+        self.playback_thread = threading.Thread(
+            target=self.play_audio, args=(path,), daemon=True
+        )
         self.playback_thread.start()
 
     def stop_audio(self):
@@ -42,8 +44,13 @@ class AudioUtils:
                 raise FileNotFoundError(f"File not found: {path}")
 
     def record_mic(self, filename="records/record.wav"):
-        stream = self.audio.open(format=pyaudio.paInt16, channels=self.channels, rate=self.sample_rate, input=True,
-                                 frames_per_buffer=1024)
+        stream = self.audio.open(
+            format=pyaudio.paInt16,
+            channels=self.channels,
+            rate=self.sample_rate,
+            input=True,
+            frames_per_buffer=1024,
+        )
         frames = []
         try:
             while True:
@@ -58,7 +65,7 @@ class AudioUtils:
                 soundfile.setnchannels(self.channels)
                 soundfile.setsampwidth(self.audio.get_sample_size(pyaudio.paInt16))
                 soundfile.setframerate(self.sample_rate)
-                soundfile.writeframes(b''.join(frames))
+                soundfile.writeframes(b"".join(frames))
                 return filename
 
     def __del__(self):
