@@ -1,99 +1,143 @@
 @echo off
-REM This script installs Python and required packages for the project.
+setlocal EnableDelayedExpansion
 
-REM Change directory to the project folder
-cd %~dp0
+title VoiceChat Over 9000 Setup
+color 0A
 
-REM Check if winget is installed
-winget --version >nul 2>&1
-IF ERRORLEVEL 1 (
-    echo winget is not installed. Consider installing winget from the Microsoft Store.
-    exit /b
+echo ================================================
+echo           VoiceChat Over 9000 Setup
+echo                  Version 1.0
+echo ================================================
+echo.
+
+:: Change to script directory
+cd /d "%~dp0"
+
+:: Check internet connectivity
+echo [*] Checking internet connection...
+ping -n 1 github.com >nul 2>&1
+if errorlevel 1 (
+    color 0C
+    echo [ERROR] No internet connection detected.
+    echo         Please check your connection and try again.
+    goto :exit
 )
 
-REM Check if Python is installed
-python --version >nul 2>&1
-IF ERRORLEVEL 1 (
-    echo Python is not installed. Install Python? y/n
-    set /p choice=
-    IF /I "%choice%" EQU "y" (
-        REM Install Python using winget
-        echo Installing Python...
-        winget install -e --id=Python.Python.3.12
-    ) ELSE (
-        echo Python is required to run this project.
-        exit /b
+:: Check for required tools with colorful feedback
+call :check_dependency "winget" "winget --version" "Microsoft Store" "" "0"
+if errorlevel 1 goto :exit
+
+call :check_dependency "Python" "python --version" "Python.Python.3.12" "python" "1"
+if errorlevel 1 goto :exit
+
+call :check_dependency "Git" "git --version" "Git.Git" "git" "1" 
+if errorlevel 1 goto :exit
+
+call :check_dependency "FFmpeg" "ffmpeg -version" "Gyan.FFmpeg" "ffmpeg" "1"
+if errorlevel 1 goto :exit
+
+:: Update repository
+echo.
+echo [*] Updating repository from GitHub...
+git pull || (
+    color 0C
+    echo [ERROR] Failed to update from GitHub.
+    goto :exit
+)
+
+:: Check/create virtual environment
+echo.
+if not exist "venv" (
+    echo [*] Creating virtual environment...
+    python -m venv venv || (
+        color 0C
+        echo [ERROR] Failed to create virtual environment.
+        goto :exit
     )
+    echo [+] Virtual environment created successfully.
+) else (
+    echo [+] Virtual environment exists.
 )
 
-
-REM Check Git
-git --version >nul 2>&1
-IF ERRORLEVEL 1 (
-    echo Git is not installed. Install Git? y/n
-    set /p choice=
-    IF /I "%choice%" EQU "y" (
-        REM Install Git using winget
-        echo Installing Git...
-        winget install -e --id=Git.Git
-    ) ELSE (
-        echo Git is required to run this project.
-        exit /b
-    )
+:: Check for .env file
+echo.
+if not exist ".env" (
+    color 0E
+    echo [!] OpenAI API key required
+    echo     Create a .env file with the following content:
+    echo.
+    echo     OPENAI_API_KEY=your-api-key
+    echo.
+    set /p continue="Press Enter when ready to continue or Q to quit: "
+    if /i "!continue!"=="Q" goto :exit
+    color 0A
+) else (
+    echo [+] .env file exists.
 )
 
-REM Update the repository
-echo Updating the repository from GitHub...
-git pull
-
-REM Check if ffmpeg is installed
-ffmpeg -version >nul 2>&1
-IF ERRORLEVEL 1 (
-    echo ffmpeg is not installed. Install ffmpeg? y/n
-    set /p choice=
-    IF /I "%choice%" EQU "y" (
-        REM Install ffmpeg using winget
-        echo Installing ffmpeg...
-        winget install -e --id=Gyan.FFmpeg
-    ) ELSE (
-        echo ffmpeg is required to run this project.
-        exit /b
-    )
+:: Activate and update virtual environment
+echo.
+echo [*] Activating virtual environment...
+call venv/Scripts/activate || (
+    color 0C
+    echo [ERROR] Failed to activate virtual environment.
+    goto :exit
 )
 
-REM Check if venv exists
-IF NOT EXIST "venv" (
-    echo Creating virtual environment...
-    python -m venv venv
-) ELSE (
-    echo Virtual environment exists.
+echo [*] Installing required packages...
+pip install -r requirements.txt || (
+    color 0C
+    echo [ERROR] Failed to install required packages.
+    goto :exit
 )
 
-REM Check for .env file
-IF NOT EXIST ".env" (
-    echo Obtain OpenAI API key and create a .env file with the following content:
-    echo OPENAI_API_KEY=your-api-key
-    pause
-) ELSE (
-    echo .env file exists...
-)
-
-REM Activate the virtual environment
-echo Activating virtual environment...
-CALL venv\Scripts\activate
-
-REM Install required packages
-echo Installing required packages...
-pip install -r requirements.txt
-
-
-
-REM Clear the screen
-pause
-cls
-
-REM Run main.py
+:: Run the application
+echo.
+echo [*] Starting VoiceChat Over 9000...
+echo ================================================
 python main.py
 
-REM Pause before closing
+echo.
+echo ================================================
+echo           VoiceChat Over 9000 closed
+echo ================================================
+
+:exit
+echo.
 pause
+endlocal
+exit /b
+
+:: Function to check dependencies
+:check_dependency
+echo.
+echo [*] Checking for %~1...
+%~2 >nul 2>&1
+if errorlevel 1 (
+    if "%~5"=="0" (
+        color 0C
+        echo [ERROR] %~1 is required but not installed.
+        echo         Please install from %~3.
+        exit /b 1
+    ) else (
+        echo [X] %~1 not found. Install it? Y/N
+        set /p user_choice=
+        if /i "!user_choice!"=="Y" (
+            echo [*] Installing %~1...
+            winget install -e --id=%~3
+            if errorlevel 1 (
+                color 0C
+                echo [ERROR] Failed to install %~1.
+                exit /b 1
+            )
+            echo [+] %~1 installed successfully.
+        ) else (
+            color 0C
+            echo [ERROR] %~1 is required to run this project.
+            exit /b 1
+        )
+    )
+) else (
+    echo [+] %~1 is installed.
+)
+exit /b 0
