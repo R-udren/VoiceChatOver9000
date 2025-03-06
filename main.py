@@ -6,8 +6,8 @@ from ai_assistant import AIAssistant
 
 def main():
     console = Console(style="bold bright_white", markup=True)
-    assistant = AIAssistant(console=console)
-    console.set_alt_screen(enable=True)
+    assistant = AIAssistant(console=console, history_path="history.txt")
+    console.set_alt_screen(enable=True)  # Experimental, sometime make weird things
     console.clear()
     console.print(
         Panel.fit(

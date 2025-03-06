@@ -1,4 +1,5 @@
 import os
+import re
 from typing import Dict, Literal
 
 from openai import APIConnectionError, NotFoundError, OpenAI
@@ -117,8 +118,13 @@ class AIAssistant:
             answer = self.conversation(user_text)
 
             if answer and self.config.AI_SPEAKS:
+                answer_without_code = re.sub(
+                    r"```[\s\S]*?```",
+                    "[Code Snippet...]",
+                    answer,
+                )
                 audio_path = self.text_to_speech(
-                    answer, self.voices.get("Assistant", "nova")
+                    answer_without_code, self.voices.get("Assistant", "nova")
                 )
 
         self.console.print(
@@ -166,7 +172,7 @@ class AIAssistant:
                 for message in self.message_history:
                     file.write(f"{message['role']}: {message['content']}\n")
             self.console.print(
-                f"\n[bold bright_yellow]Chat history saved to [bright_magenta]{self.history_path}"
+                f"[bold bright_yellow]Chat history saved to [bright_magenta]{self.history_path}"
             )
-        self.console.print("\n[bold bright_yellow]Goodbye!:wave:")
+        self.console.print("[bold bright_yellow]Goodbye!:wave:")
         exit()
